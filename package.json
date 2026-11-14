@@ -1,0 +1,101 @@
+{
+  "name": "gik-components",
+  "version": "0.3.2",
+  "description": "Self-describing declarative Fluent components for the Generative Interaction Kernel.",
+  "license": "MIT",
+  "author": "nsreehari",
+  "keywords": [
+    "gik",
+    "generative-ui",
+    "declarative-ui",
+    "react",
+    "fluent-ui",
+    "components"
+  ],
+  "homepage": "https://github.com/nsreehari/gik-components#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nsreehari/gik-components.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nsreehari/gik-components/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./semantic": {
+      "types": "./dist/semantic.d.ts",
+      "import": "./dist/semantic.js"
+    },
+    "./security": {
+      "types": "./dist/security.d.ts",
+      "import": "./dist/security.js"
+    },
+    "./software": {
+      "types": "./dist/software.d.ts",
+      "import": "./dist/software.js"
+    },
+    "./primitives": {
+      "types": "./dist/primitives.d.ts",
+      "import": "./dist/primitives.js"
+    },
+    "./fluent": {
+      "types": "./dist/fluent.d.ts",
+      "import": "./dist/fluent.js"
+    },
+    "./agent-facing": {
+      "types": "./dist/agent-facing.d.ts",
+      "import": "./dist/agent-facing.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "peerDependencies": {
+    "@fluentui/react-components": "^9.74.3",
+    "@fluentui/react-icons": "^2.0.312",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "gik-evaluators": ">=0.4.0",
+    "gik-kernel": ">=0.4.1",
+    "gik-react": ">=0.5.0",
+    "@xyflow/react": "^12.11.2",
+    "mermaid": "^11.16.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run && node --test test/*.test.mjs",
+    "test:package": "node scripts/package-consumer.mjs",
+    "generate:agent-facing": "node --import tsx/esm scripts/generate-agent-facing-catalog.ts",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/react-test-renderer": "^18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-test-renderer": "^18.3.1",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vite": "^6.3.5",
+    "vitest": "4.1.10"
+  },
+  "packageManager": "npm@11.19.0"
+}
