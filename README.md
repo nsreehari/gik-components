@@ -26,6 +26,26 @@ Configure npm trusted publishing for `nsreehari/gik-components`, workflow
 channel. Do not copy tokens from the old repository. Publication is manual,
 protected, and consumes the validated archive without rebuilding.
 
+Release scripts and artifacts follow the core GIK paths:
+`config/npm-release.json`, `scripts/validate-npm-release.mjs`,
+`scripts/verify-package-artifacts.mjs`, `scripts/release-artifacts.mjs`,
+`scripts/verify-published-packages.mjs`, and `.artifacts/npm-release`.
+Normal CI validates the committed lock once; explicit lock-only dispatches
+generate reviewable locks without claiming build/test success.
+
+A maintainer publishes a reviewed GitHub release at current protected `main`,
+tagged `npm-YYYY-MM-DD.N` (stable) or `npm-next-YYYY-MM-DD.N` (prerelease).
+Readonly validation builds, tests, packs and exercises the package once.
+After `npm-publish` approval, publication consumes the same manifest-digest-bound
+archive without installing project dependencies, rebuilding or repacking.
+Readonly registry verification then checks exact bytes, source provenance,
+signatures and a clean typed/runtime consumer. Manual `publish.yml` dispatch
+only validates; manual `verify-published-packages.yml` dispatch checks the
+existing registry version without claiming it was published from current source.
+The npm trusted-publisher mapping must explicitly allow direct `npm publish`;
+the GitHub environment admits `main` and `npm-*` tags and retains owner approval.
+No App/token-based version or release bot is required.
+
 Components render data and emit declared intents. Blueprint Cells own
 cross-component state, purpose, source retrieval, and effect declarations;
 hosts own effect execution and authorization. A DPP manifest or Sense does not
