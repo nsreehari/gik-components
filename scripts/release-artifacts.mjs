@@ -12,16 +12,16 @@ export function validateCandidate(candidate, source, commit, bytes, digest) {
     || candidate.sha256 !== digest || sha256(bytes) !== digest || candidate.integrity !== integrity(bytes)) {
     throw new Error("Candidate source, version, integrity or validation handoff mismatch");
   }
-  export function validateReleaseManifest(manifest, source, inputs, archive, manifestBytes, expectedDigest) {
-    if (!/^[a-f0-9]{64}$/.test(expectedDigest ?? "") || sha256(manifestBytes) !== expectedDigest
-      || manifest.format !== "gik-release-artifacts/1" || manifest.packages?.length !== 1
-      || Object.entries(inputs).some(([key, value]) => manifest.inputs?.[key] !== value)) {
-      throw new Error("Release manifest, source, lock, toolchain or digest handoff mismatch");
-    }
-    const entry = manifest.packages[0];
-    if (entry.file !== `${source.name}-${source.version}.tgz` || entry.publish !== true) throw new Error("Unexpected release package");
-    validateCandidate({ ...entry, commit: manifest.inputs.commit }, source, inputs.commit, archive, entry.sha256);
+}
+export function validateReleaseManifest(manifest, source, inputs, archive, manifestBytes, expectedDigest) {
+  if (!/^[a-f0-9]{64}$/.test(expectedDigest ?? "") || sha256(manifestBytes) !== expectedDigest
+    || manifest.format !== "gik-release-artifacts/1" || manifest.packages?.length !== 1
+    || Object.entries(inputs).some(([key, value]) => manifest.inputs?.[key] !== value)) {
+    throw new Error("Release manifest, source, lock, toolchain or digest handoff mismatch");
   }
+  const entry = manifest.packages[0];
+  if (entry.file !== `${source.name}-${source.version}.tgz` || entry.publish !== true) throw new Error("Unexpected release package");
+  validateCandidate({ ...entry, commit: manifest.inputs.commit }, source, inputs.commit, archive, entry.sha256);
 }
 export function validateProvenance(data, repository, commit) {
   const uri = `git+https://github.com/${repository}`;
