@@ -132,6 +132,37 @@ const schema = eventSeries.getSchema();
 const report = eventSeries.validate(eventSeries.materializeTrial().props);
 ```
 
+## Chat And Mail Extensions
+
+Import `chatProjectionProvider` from `gik-components/chat` and
+`mailProjectionProvider` from `gik-components/mail` explicitly. These optional
+extensions are not added to the existing root registries or generated catalogs.
+They provide `chat:message`, `chat:composer`, `chat:activity`, `chat:pane` and
+`mail:send`. Wrap rendering in the host's FluentProvider as for other components.
+
+The composer keeps text locally. `value` seeds its draft; keep it mounted and
+use a stable conversation key. Submission emits `{ text, attachments }`, where
+attachments are opaque `{ id, name, size?, type? }` references, never bytes or
+public links. A fresh host `acknowledged: { id, text }` clears only the submitted,
+unchanged draft; newer edits survive. `busy` shows pane activity independently
+of `submitting`/`disabled`. Enter submits, Shift+Enter adds a newline, and IME
+composition does not submit. Model selection emits only an advertised ID;
+selection is not consent to external AI processing.
+
+Mail presents the complete editable recipients, subject and body and emits
+`approve` or `cancel` intents. An approval intent is not execution authority:
+the host must validate and authorize that exact message, deduplicate admission,
+drive `sending`/`sent`/`failed`/`cancelled` state and inspect uncertain sends before
+offering another attempt. Neither extension performs network, OAuth, storage,
+agent-loop or financial operations. The host owns history, source access,
+cancellation receipts and stale-result rejection.
+
+Ported from code-only Finbook PR #40, commit
+`21daa1d9e2d1427078070d5806a3b6c1f8fc9914` (MIT, nsreehari).
+Chat's presentation lineage includes the MIT demo-boards-frontend implementation,
+commit `f59fd939` (nsreehari), adapted in Finbook to declarative host-owned events.
+No application Blueprints or data are included.
+
 ## React adapters
 
 The root package exports `GikComponent` as the typed convenience API for rendering one package
