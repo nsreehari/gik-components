@@ -2,6 +2,8 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: {
+    chat: "src/chat/index.ts",
+    mail: "src/mail/index.ts",
     index: "src/shared/index.ts",
     semantic: "src/semantic/index.ts",
     security: "src/security/index.ts",
