@@ -43,6 +43,11 @@ export const composerProperties = {
     properties: { id: { type: "string", minLength: 1 }, label: { type: "string", minLength: 1 } } } },
   selectedModel: { type: "string" },
   modelSelectionDisabled: { type: "boolean" },
+  subModels: { type: "array", items: { type: "object", additionalProperties: false, required: ["id", "label"],
+    properties: { id: { type: "string", minLength: 1 }, label: { type: "string", minLength: 1 } } } },
+  selectedSubModel: { type: "string" },
+  subModelSelectionDisabled: { type: "boolean" },
+  subModelLabel: { type: "string", minLength: 1 },
   acknowledged: { anyOf: [{ type: "null" }, { type: "object", additionalProperties: false, required: ["id", "text"], properties: {
     id: { type: "string" }, text: { type: "string" },
   } }] },
@@ -60,6 +65,10 @@ export interface ComposerProps {
   models?: { id: string; label: string }[];
   selectedModel?: string;
   modelSelectionDisabled?: boolean;
+  subModels?: { id: string; label: string }[];
+  selectedSubModel?: string;
+  subModelSelectionDisabled?: boolean;
+  subModelLabel?: string;
   acknowledged?: { id: string; text: string } | null;
   attachments?: ChatAttachment[];
   placeholder?: string;

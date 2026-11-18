@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Textarea, makeStyles, tokens } from "@fluentui/react-components";
+import { Button, Dropdown, Option, Textarea, makeStyles, tokens } from "@fluentui/react-components";
 import type { ProjectionView } from "gik-react";
 import { FileList } from "../primitives/file-list";
 import { componentRootProps } from "../shared/component";
@@ -9,13 +9,16 @@ import { attachmentRecords, attachmentSchema, chatSchema, composerProperties, de
 export const composerSchema = chatSchema(composerProperties);
 const useStyles = makeStyles({
   root: { display: "flex", flexDirection: "column", flexShrink: 0, gap: tokens.spacingVerticalS, minWidth: 0 },
-  row: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: tokens.spacingHorizontalS },
+  row: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: tokens.spacingHorizontalS },
+  selectors: { display: "flex", alignItems: "center", flexWrap: "wrap", gap: tokens.spacingHorizontalXS, minWidth: 0 },
+  dropdown: { minWidth: "140px", maxWidth: "220px" },
   input: { width: "100%", minWidth: 0, minHeight: "64px", maxHeight: "160px" },
   error: { color: tokens.colorPaletteRedForeground1 },
 });
 
 export const composerEvents = {
   modelChange: eventContract("The user requested one of the host-advertised models.", { id: { type: "string", minLength: 1 } }),
+  subModelChange: eventContract("The user requested one of the host-advertised engine models.", { id: { type: "string", minLength: 1 } }),
   draftChange: eventContract("The component became nonempty or empty; draft text stays local.", { dirty: { type: "boolean" } }),
   submit: eventContract("The user requested submission; the host must acknowledge it before clearing the draft.", {
     text: { type: "string" }, attachments: { type: "array", items: attachmentSchema },
@@ -70,16 +73,29 @@ export const ChatComposer: ProjectionView = ({ node, emit }) => {
         }} />
     <div className={styles.row}>
       {props.allowAttachments ? <Button type="button" size="small" disabled={disabled} onClick={() => void emit("attach", {})}>Attach Files</Button> : <span />}
-      {props.models?.length ? <label>Model <select aria-label="Model" value={props.selectedModel ?? ""}
-        disabled={props.modelSelectionDisabled || props.submitting}
-        title={props.modelSelectionDisabled ? "Start a new empty chat to change its model." : undefined}
-        onChange={event => {
-          const id = event.target.value;
-          if (props.models?.some(model => model.id === id)) void emit("modelChange", { id });
-        }}>
-        {!props.models.some(model => model.id === props.selectedModel) && <option value="" disabled>Select Model</option>}
-        {props.models.map(model => <option key={model.id} value={model.id}>{model.label}</option>)}
-      </select></label> : null}
+      <div className={styles.selectors}>
+        {props.models?.length ? <Dropdown aria-label="Model" size="small" className={styles.dropdown}
+          value={props.models.find(model => model.id === props.selectedModel)?.label ?? "Select Model"}
+          selectedOptions={props.selectedModel ? [props.selectedModel] : []}
+          disabled={props.modelSelectionDisabled || props.submitting}
+          title={props.modelSelectionDisabled ? "Start a new empty chat to change its model." : undefined}
+          onOptionSelect={(_, data) => {
+            const id = data.optionValue;
+            if (id && props.models?.some(model => model.id === id)) void emit("modelChange", { id });
+          }}>
+          {props.models.map(model => <Option key={model.id} value={model.id}>{model.label}</Option>)}
+        </Dropdown> : null}
+        {props.subModels?.length ? <Dropdown aria-label={props.subModelLabel ?? "Engine Model"} size="small" className={styles.dropdown}
+          value={props.subModels.find(model => model.id === props.selectedSubModel)?.label ?? "Auto (Configured Default)"}
+          selectedOptions={props.selectedSubModel ? [props.selectedSubModel] : []}
+          disabled={props.subModelSelectionDisabled || props.submitting}
+          onOptionSelect={(_, data) => {
+            const id = data.optionValue;
+            if (id && props.subModels?.some(model => model.id === id)) void emit("subModelChange", { id });
+          }}>
+          {props.subModels.map(model => <Option key={model.id} value={model.id}>{model.label}</Option>)}
+        </Dropdown> : null}
+      </div>
       <Button type="button" size="small" appearance="primary" disabled={!canSubmit} onClick={submit}>{props.submitting ? "Sending..." : "Send"}</Button>
     </div>
     {props.error ? <div id={errorId} role="alert" className={styles.error}>{props.error}</div> : null}

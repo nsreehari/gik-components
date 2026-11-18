@@ -147,7 +147,12 @@ public links. A fresh host `acknowledged: { id, text }` clears only the submitte
 unchanged draft; newer edits survive. `busy` shows pane activity independently
 of `submitting`/`disabled`. Enter submits, Shift+Enter adds a newline, and IME
 composition does not submit. Model selection emits only an advertised ID;
-selection is not consent to external AI processing.
+selection is not consent to external AI processing. Both selectors use Fluent
+Dropdowns. Optional `subModels`, `selectedSubModel` and
+`subModelSelectionDisabled` expose the selected engine's advertised model list;
+`subModelChange` carries only its ID. `subModelLabel` defaults to "Engine Model";
+the host can supply "Copilot Model" without baking an engine into this package.
+The pane forwards both selector contracts and each can be disabled independently.
 
 Mail presents the complete editable recipients, subject and body and emits
 `approve` or `cancel` intents. An approval intent is not execution authority:
@@ -162,6 +167,9 @@ Ported from code-only Finbook PR #40, commit
 Chat's presentation lineage includes the MIT demo-boards-frontend implementation,
 commit `f59fd939` (nsreehari), adapted in Finbook to declarative host-owned events.
 No application Blueprints or data are included.
+The selector parity refresh follows Finbook commit
+`8a05e256d0511c9b0144f991c3520836d4a9a735` (#41). Runtime model discovery,
+engine validation and conversation persistence remain host-owned.
 
 ## React adapters
 

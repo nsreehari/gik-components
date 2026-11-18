@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import React from "react";
 import TestRenderer, { act } from "react-test-renderer";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Button, Input, Textarea } from "@fluentui/react-components";
+import { Button, Dropdown, Input, Textarea } from "@fluentui/react-components";
 import { test } from "vitest";
 import type { Json, ResolvedNode } from "gik-kernel";
 import { ChatComposer, ChatPane, chatComponentDefinitions } from "../src/chat";
@@ -52,14 +52,44 @@ test("composer suppresses IME and Shift+Enter submissions and emits advertised m
     const textarea = renderer.root.findByType(Textarea);
     textarea.props.onKeyDown(key(false, true));
     textarea.props.onKeyDown(key(true, false));
-    renderer.root.findByType("select").props.onChange({ target: { value: "unadvertised" } });
+    renderer.root.findByType(Dropdown).props.onOptionSelect({}, { optionValue: "unadvertised" });
   });
   assert.deepEqual(events, []);
   act(() => {
     renderer.root.findByType(Textarea).props.onKeyDown(key(false, false));
-    renderer.root.findByType("select").props.onChange({ target: { value: "local" } });
+    renderer.root.findByType(Dropdown).props.onOptionSelect({}, { optionValue: "local" });
   });
   assert.deepEqual(events, ["submit", "modelChange"]);
+  act(() => { renderer.unmount(); });
+});
+
+test("engine model selection is advertised-only, independently disabled and forwarded by the pane", () => {
+  const events: [string, unknown][] = [];
+  const props = {
+    conversationId: "synthetic", messages: [], models: [{ id: "local", label: "Local" }],
+    selectedModel: "local", modelSelectionDisabled: true,
+    subModels: [{ id: "auto", label: "Auto" }, { id: "specific", label: "Specific" }],
+    selectedSubModel: "auto", subModelLabel: "Copilot Model",
+  };
+  const view = (extra: Record<string, Json> = {}) => <ChatPane
+    node={node("chat:pane", { ...props, ...extra })}
+    emit={(name, payload) => { events.push([name, payload]); }} children={null} />;
+  let renderer!: TestRenderer.ReactTestRenderer;
+  act(() => { renderer = TestRenderer.create(view()); });
+  const dropdowns = renderer.root.findAllByType(Dropdown);
+  assert.equal(dropdowns[0].props.disabled, true);
+  assert.equal(Boolean(dropdowns[1].props.disabled), false);
+  assert.equal(dropdowns[1].props["aria-label"], "Copilot Model");
+  assert.deepEqual(dropdowns[1].props.selectedOptions, ["auto"]);
+  act(() => {
+    dropdowns[1].props.onOptionSelect({}, { optionValue: "unknown" });
+    dropdowns[1].props.onOptionSelect({}, { optionValue: "specific" });
+  });
+  assert.deepEqual(events, [["subModelChange", { id: "specific" }]]);
+  act(() => { renderer.update(view({ subModelSelectionDisabled: true })); });
+  assert.equal(renderer.root.findAllByType(Dropdown)[1].props.disabled, true);
+  act(() => { renderer.update(view({ submitting: true })); });
+  assert.equal(renderer.root.findAllByType(Dropdown).every(dropdown => dropdown.props.disabled), true);
   act(() => { renderer.unmount(); });
 });
 
